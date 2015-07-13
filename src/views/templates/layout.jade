@@ -1,0 +1,23 @@
+doctype html
+- var title = 'Modis'
+
+block vars 
+    
+html.no-js(lang="")
+  head
+    meta(charset="utf-8")
+    meta(name="description", content="")
+    meta(name="viewport", content="width=device-width, initial-scale=1, minimal-ui")
+    title #{title}
+    link(rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css")
+    // Place favicon.ico and apple-touch-icon.png in the root directory
+    // build:css styles/main.css
+    link(rel="stylesheet", href="styles/vendor.css")
+    link(rel="stylesheet", href="styles/main.css")
+    // endbuild
+    // build:js scripts/vendor/modernizr.js
+    // endbuild
+  body
+    block content
+    script(src="scripts/main.concat.js" defer)
+    block scripts
