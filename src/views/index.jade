@@ -1,13 +1,55 @@
 extends templates/layout
 
 block content
-	h2 Телефон
-	#your-id
-	#x
-	#y
-	#z
-	#info
-
+	.wrapper.controller
+		.screen(data-screen="start")
+			.mobile-start
+				.start__title На чьей ты стороне?
+				.start__choises
+					.choises__item
+						a(href="#" data-type="male").js-choise.item__btn.btn-male
+					.choises__or или
+					.choises__item
+						a(href="#" data-type="female").js-choise.item__btn.btn-female
+		.screen(data-screen="game")
+			.mobile-start
+				.js-game-states
+					.start__title(data-state="wait" style="display: none;") Ожидаем участников
+					.start__title(data-state="ready" style="display: none;") Приготовтесь
+					.start__title(data-state="game" style="display: none;") Трясите вашим телефоном сильнее
+				.mobile-info
+					.info__image
+						.image__id.js-your-id
+						img.image__main.js-your-image
+						img.image__shadow(src="images/shadow.svg")
+		.screen(data-screen="finish")
+			.phone-status.js-win
+				span Поздравляем с победой
+			.phone-status.js-fail 
+				span Вы проиграли, попробуйте еще раз
+		.screen(data-screen="promo")
+			.block-promo-mobile
+				.promo__title Ты можешь<br>позволить себе больше
+				.promo__desc Установи приложение <b>MODIS Бонус</b><br>в дни фестиваля <b>18 и 19 июля</b><br>и получи дополнительные<br><b>500 баллов</b> на карту!
+				.promo__image
+					.image__circle.circle-top
+						.circle__text регистрируйся в<br>#<b>modis</b>бонус
+						.circle__bonus
+							.bonus__text Получай
+							.bonus__price 500
+							.bonus__text Баллов
+					.image__circle.circle-bottom
+						.circle__text при первой<br>покупке
+						.circle__bonus
+							.bonus__text Получай
+							.bonus__price 500
+							.bonus__text Рублей
+		.screen(data-screen="disconnect")
+			.phone-status.min 
+				span Вы отключились от сервера игры
+		.screen(data-screen="gameStarted")
+			.phone-status.min 
+				span Дождитесь окончания текущей игры.<br>Для повторного подключения обновите страницу.
 block scripts
 	script.
 		var device_type = 'mobile';

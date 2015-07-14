@@ -1,8 +1,47 @@
 extends templates/layout
 
 block content
-	h2 Компьютер
-	ul#clients.users-list
+	.computer-logo
+		img(src="images/logo.png")
+	.wrapper.computer
+		.screen(data-screen="start")
+			.start-desc Чтобы принять участие подключайся к WI-FI сети <b>MODIS</b> и вводи в браузере <b>modisfun.game</b> или <b>192.168.10.10</b>
+			.start-animal
+				img(src="images/start-animal.png")
+		.screen(data-screen="game")
+			.game-state.js-game-step(data-step="ready")
+				.state__top Ожидаем участников
+				.state__sub Подключайся к WI-FI сети MODIS и заходи на modisfun.game или 192.168.10.10
+			.game-state.js-game-step(data-step="game")
+				.state__top Трясите вашим телефоном сильнее
+			.game-state.game-countdown.js-countdown
+			ul.users-list#clients
+		.screen(data-screen="finish")
+			.winner-block
+				.block__top Победил игрок
+				.block__number
+					span.js-winner-id
+				.block__image
+					.image__cont
+						img.image__top.js-winner-image
+						img.image__shadow(src="images/shadow.svg")
+		.screen(data-screen="promo")
+			.block-promo.game-state
+				.promo__title Ты можешь<br>позволить себе больше
+				.promo__desc Установи приложение <b>MODIS Бонус</b> в дни фестиваля <b>18 и 19 июля</b><br>и получи дополнительные <b>500 баллов</b> на карту!
+				.promo__image
+					.image__circle.circle-top
+						.circle__text регистрируйся в<br>#<b>modis</b>бонус
+						.circle__bonus
+							.bonus__text Получай
+							.bonus__price 500
+							.bonus__text Баллов
+					.image__circle.circle-bottom
+						.circle__text при первой<br>покупке
+						.circle__bonus
+							.bonus__text Получай
+							.bonus__price 500
+							.bonus__text Рублей
 
 block scripts
 	script.

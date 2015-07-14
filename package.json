@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/Grapheme/beard",
   "devDependencies": {
+    "gulp": "^3.9.0",
     "gulp-autoprefixer": "^2.3.1",
     "gulp-concat": "^2.5.2",
     "gulp-connect": "^2.2.0",
