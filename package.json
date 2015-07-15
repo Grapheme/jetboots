@@ -24,9 +24,7 @@
     "gulp-ignore": "^1.2.1",
     "gulp-jade": "^1.0.1",
     "gulp-open": "^0.3.2",
-    "gulp-sass": "^2.0.1",
-    "jsdom": "^5.6.0",
-    "websocket": "^1.0.19"
+    "gulp-sass": "^2.0.1"
   },
   "dependencies": {
     "wiredep": "^2.2.2"
