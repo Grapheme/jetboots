@@ -75,7 +75,7 @@ var display = function() {
                         return;
                     }
                     //$('.js-countdown').text(time);
-                    $('.js-countdown').text('Приготовтесь');
+                    $('.js-countdown').text('Приготовьтесь');
                     self.timeout = setTimeout(function(){
                         if(self.allow_count) {
                             countTime(time-1);
@@ -114,7 +114,7 @@ var display = function() {
                 }
             } else {
                 socket.send(JSON.stringify({
-                    type: 'phoneWaitPlayers'
+                    type: 'phoneWaitPlayers',
                 }));
             }
         },
@@ -153,6 +153,18 @@ var display = function() {
                     countdown.stop();
                 }
             }
+            if(state == 'game' && data.online_registered == 1) {
+                var this_id;
+                delete connections[data.id];
+                $.each(connections, function(i, v){
+                    this_id = v.id;
+                });
+                socket.send(JSON.stringify({
+                    type: 'onePlayer',
+                    id: this_id
+                }));
+                responses.winner({id: this_id});
+            }
         },
         states: {
             start: function() {
@@ -177,7 +189,7 @@ var display = function() {
     socket.onmessage = function (message) {
         var json = JSON.parse(message.data);
         //console.log(json);
-        if(json.state != state) {
+        if(json.state != state && json.state !== undefined) {
             state = json.state;
             $(document).trigger('state::change');
         }

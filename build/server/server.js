@@ -54,6 +54,16 @@ var sendAllConnected = function(type, obj) {
     }
 }
 
+var sendNotInGame = function(type, obj) {
+    for(var index in connections) { 
+        if (connections.hasOwnProperty(index)) {
+            if(!connections[index].ingame) {
+                gameSend(connections[index], type, obj);
+            }
+        }
+    }
+}
+
 var responses = {
     start: function(data, connection) {
         if(state == 'start' || state == 'ready') {
@@ -101,7 +111,7 @@ var responses = {
         }
     },
     shakeTest: function(data) {
-        console.log(data.shake);
+        //console.log(data.shake);
     },
     shake: function(data, connection) {
         if(displayConnect && state == 'game' && typeof(scons[connection.id]) !== 'undefined') {
@@ -138,6 +148,7 @@ var displayResponses = {
     },
     startGame: function() {
         state = 'game';
+        sendNotInGame('gameWithOutYou');
         gameSend(displayConnect, 'game', {});
         return false;
     },
@@ -157,6 +168,11 @@ var displayResponses = {
     },
     phoneWaitPlayers: function() {
         sendAllConnected('phoneWaitPlayers', {});
+    },
+    onePlayer: function(data) {
+        sendAllConnected('winner', {
+            id: data.id
+        });
     }
 }
 
@@ -195,7 +211,9 @@ socket.on('request', function(request) {
                 online_registered: online_registered
             };
             var json_str = JSON.stringify(deleteObj);
-            displayConnect.sendUTF(json_str);
+            if(displayConnect) {
+                displayConnect.sendUTF(json_str);
+            }
             console.log('--- --- --- --- ---');
             console.log('disconnected device with id ' + connection.id);
             console.log(online + ' devices online');
