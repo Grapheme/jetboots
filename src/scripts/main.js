@@ -267,7 +267,9 @@ var controller = function() {
     };
 
     socket.onclose = function() {
-        screens.show('disconnect', 'screen');
+        if(!$('[data-screen="promo"]').is(':visible')) {
+            screens.show('disconnect', 'screen');
+        }
     }
 
     socket.onerror = function (error) {
