@@ -142,6 +142,9 @@ var responses = {
 
 var displayResponses = {
     start: function() {
+        if(state != 'start') {
+            gameStart();
+        }
         gameSend(displayConnect, 'init', {
             connections: scons
         });
