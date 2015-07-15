@@ -224,6 +224,7 @@ socket.on('request', function(request) {
 
 var os = require('os');
 var ifaces = os.networkInterfaces();
+var actual_ip = '0.0.0.0';
 
 Object.keys(ifaces).forEach(function (ifname) {
   var alias = 0
@@ -241,6 +242,14 @@ Object.keys(ifaces).forEach(function (ifname) {
     } else {
       // this interface has only one ipv4 adress
       console.log(ifname, iface.address);
+      actual_ip = iface.address;
+      var fs = require('fs');
+      fs.writeFile("./ipadress", JSON.stringify({ip: actual_ip}), function(err) {
+          if(err) {
+              return console.log(err);
+          }
+          console.log("IP was saved!");
+      }); 
     }
   });
 });

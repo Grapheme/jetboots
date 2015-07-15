@@ -1,8 +1,3 @@
-if(window.location.hash && window.location.hash != '') {
-    var IP = window.location.hash.substr(1);
-} else {
-    var IP = '192.168.2.115';
-}
 var IMAGES_PATH = 'images/';
 var CLOTHES_PATH = IMAGES_PATH + 'clothes/';
 var state;
@@ -354,5 +349,16 @@ var controller = function() {
     });
 }
 
-if(device_type == 'mobile') controller();
-if(device_type == 'desktop') display();
+var gameInit = function() {
+    if(device_type == 'mobile') controller();
+    if(device_type == 'desktop') display();
+}
+
+var IP;
+$(function(){
+    $.get('server/ipadress').done(function(data){
+        IP = JSON.parse(data).ip;
+        $('.js-ip-string').text(IP);
+        gameInit();
+    });
+});
