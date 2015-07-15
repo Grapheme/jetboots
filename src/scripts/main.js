@@ -1,4 +1,8 @@
-var IP = '192.168.2.115';
+if(window.location.hash && window.location.hash != '') {
+    var IP = window.location.hash.substr(1);
+} else {
+    var IP = '192.168.2.115';
+}
 var IMAGES_PATH = 'images/';
 var CLOTHES_PATH = IMAGES_PATH + 'clothes/';
 var state;
@@ -248,6 +252,10 @@ var controller = function() {
                 .siblings().hide();
         },
         gameStarted: function() {
+            screens.show('gameStarted', 'screen');
+        },
+        gameWithOutYou: function() {
+            if($('[data-screen=""]'))
             screens.show('gameStarted', 'screen');
         },
         states: {
