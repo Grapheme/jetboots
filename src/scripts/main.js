@@ -356,9 +356,15 @@ var gameInit = function() {
 
 var IP;
 $(function(){
-    $.get('server/ipadress').done(function(data){
-        IP = JSON.parse(data).ip;
+    if((window.location.host).substring(0,9) == 'localhost') {
+        $.get('server/ipadress').done(function(data){
+            IP = JSON.parse(data).ip;
+            $('.js-ip-string').text(IP);
+            gameInit();
+        });
+    } else {
+        IP = window.location.hostname;
         $('.js-ip-string').text(IP);
         gameInit();
-    });
+    }
 });
