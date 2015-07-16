@@ -4,36 +4,155 @@ var state;
 var userTypes = {
     male: {
         0: {
-            image: 'male-1.svg'
+            image: 'male-1.svg',
+            style: 'male-1'
         },
         1: {
-            image: 'male-2.svg'
+            image: 'male-2.svg',
+            style: 'male-2'
         },
         2: {
-            image: 'male-3.svg'
+            image: 'male-3.svg',
+            style: 'male-3'
         },
         3: {
-            image: 'male-4.svg'
+            image: 'male-4.svg',
+            style: 'male-4'
         },
         4: {
-            image: 'male-5.svg'
+            image: 'male-5.svg',
+            style: 'male-5'
         },
         5: {
-            image: 'male-6.svg'
+            image: 'male-6.svg',
+            style: 'male-6'
         }
     },
     female: {
         0: {
-            image: 'female-1.svg'
+            image: 'female-1.svg',
+            style: 'female-1'
         },
         1: {
-            image: 'female-2.svg'
+            image: 'female-2.svg',
+            style: 'female-2'
         },
         2: {
-            image: 'female-3.svg'
+            image: 'female-3.svg',
+            style: 'female-3'
         }
     }
 }
+var ShakeFunction = function() {
+    function Shake(options) {
+        //feature detect
+        this.hasDeviceMotion = 'ondevicemotion' in window;
+
+        this.options = {
+            threshold: 15, //default velocity threshold for shake to register
+            timeout: 1000 //default interval between events
+        };
+
+        if (typeof options === 'object') {
+            for (var i in options) {
+                if (options.hasOwnProperty(i)) {
+                    this.options[i] = options[i];
+                }
+            }
+        }
+
+        //use date to prevent multiple shakes firing
+        this.lastTime = new Date();
+
+        //accelerometer values
+        this.lastX = null;
+        this.lastY = null;
+        this.lastZ = null;
+
+        //create custom event
+        if (typeof document.CustomEvent === 'function') {
+            this.event = new document.CustomEvent('shake', {
+                bubbles: true,
+                cancelable: true
+            });
+        } else if (typeof document.createEvent === 'function') {
+            this.event = document.createEvent('Event');
+            this.event.initEvent('shake', true, true);
+        } else {
+            return false;
+        }
+    }
+
+    //reset timer values
+    Shake.prototype.reset = function () {
+        this.lastTime = new Date();
+        this.lastX = null;
+        this.lastY = null;
+        this.lastZ = null;
+    };
+
+    //start listening for devicemotion
+    Shake.prototype.start = function () {
+        this.reset();
+        if (this.hasDeviceMotion) { window.addEventListener('devicemotion', this, false); }
+    };
+
+    //stop listening for devicemotion
+    Shake.prototype.stop = function () {
+
+        if (this.hasDeviceMotion) { window.removeEventListener('devicemotion', this, false); }
+        this.reset();
+    };
+
+    //calculates if shake did occur
+    Shake.prototype.devicemotion = function (e) {
+
+        var current = e.accelerationIncludingGravity,
+            currentTime,
+            timeDifference,
+            deltaX = 0,
+            deltaY = 0,
+            deltaZ = 0;
+
+        if ((this.lastX === null) && (this.lastY === null) && (this.lastZ === null)) {
+            this.lastX = current.x;
+            this.lastY = current.y;
+            this.lastZ = current.z;
+            return;
+        }
+
+        deltaX = Math.abs(this.lastX - current.x);
+        deltaY = Math.abs(this.lastY - current.y);
+        deltaZ = Math.abs(this.lastZ - current.z);
+
+        if (((deltaX > this.options.threshold) && (deltaY > this.options.threshold)) || ((deltaX > this.options.threshold) && (deltaZ > this.options.threshold)) || ((deltaY > this.options.threshold) && (deltaZ > this.options.threshold))) {
+            //calculate time in milliseconds since last shake registered
+            currentTime = new Date();
+            timeDifference = currentTime.getTime() - this.lastTime.getTime();
+
+            if (timeDifference > this.options.timeout) {
+                window.dispatchEvent(this.event);
+                this.lastTime = new Date();
+            }
+        }
+
+        this.lastX = current.x;
+        this.lastY = current.y;
+        this.lastZ = current.z;
+
+    };
+
+    //event handler
+    Shake.prototype.handleEvent = function (e) {
+
+        if (typeof (this[e.type]) === 'function') {
+            return this[e.type](e);
+        }
+    };
+
+    return Shake;
+};
+var Shake = ShakeFunction();
 var screens = {
     show: function(name, type) {
         $('[data-' + type + '="' + name + '"]').show()
@@ -44,18 +163,25 @@ var display = function() {
     var settings = {
         min_users: 2,
         max_users: 5,
-        countdown_time: 5
+        countdown_time: 10
     };
     var socket = new WebSocket('ws://' + IP + ':1338');
     var connections = {};
     var gameStart = function() {
         socket.send(JSON.stringify({
-            type: 'startGame' 
+            type: 'phoneGetReady'
         }));
-        countdown.stop();
-        socket.send(JSON.stringify({
-            type: 'phonePlayGame'
-        }));
+        $('.js-game-step[data-step="getReady"]').addClass('active')
+            .siblings().removeClass('active');
+        setTimeout(function(){
+            socket.send(JSON.stringify({
+                type: 'startGame' 
+            }));
+            countdown.stop(true);
+            socket.send(JSON.stringify({
+                type: 'phonePlayGame'
+            }));
+        }, 3000);
     }
     var countdown = {
         timeout: false,
@@ -65,31 +191,28 @@ var display = function() {
             var self = this;
             if(self.allow_count == false) {
                 self.allow_count = true;
-                socket.send(JSON.stringify({
-                    type: 'phoneGetReady'
-                }));
                 var countTime = function(time) {
                     if(time == 0) {
                         gameStart();
                         return;
                     }
                     //$('.js-countdown').text(time);
-                    $('.js-countdown').text('Приготовьтесь');
                     self.timeout = setTimeout(function(){
                         if(self.allow_count) {
                             countTime(time-1);
                         }
                     }, 1000);
                 }
-                $('.js-game-step').hide();
-                $('.js-countdown').show();
                 countTime(settings.countdown_time);
             }
         },
-        stop: function() {
+        stop: function(isend) {
             var self = this;
             self.allow_count = false;
-            screens.show('ready', 'step');
+            if(!isend) {
+                $('.js-game-step[data-step="ready"]').addClass('active')
+                    .siblings().removeClass('active');
+            }
             $('.js-countdown').hide();
             clearTimeout(self.timeout);
             socket.send(JSON.stringify({
@@ -102,7 +225,7 @@ var display = function() {
             connections = data.connections;
             $.each(data.connections, function(i, v){
                 if(!$('[data-id="' + v.id + '"]').length) {
-                    $('#clients').append('<li class="list__item js-user-item" data-id="' + v.id + '"><div class="user-bar"><div style="background-image: url(' + CLOTHES_PATH + userTypes[v.sex][v.sex_id].image + ')" class="bar__user js-user"><div class="user__id">' + v.id + '</div></div></div></li>');
+                    $('#clients').append('<li class="list__item js-user-item" data-id="' + v.id + '"><div class="user-bar"><div style="background-image: url(' + CLOTHES_PATH + userTypes[v.sex][v.sex_id].image + ')" class="bar__user js-user ' + userTypes[v.sex][v.sex_id].style +'"><div class="user__id">' + v.id + '</div></div></div></li>');
                 }
             });
             if(data.online_registered >= settings.min_users) {
@@ -123,6 +246,12 @@ var display = function() {
             });
         },
         winner: function(data) {
+            if(!data.id) {
+                socket.send(JSON.stringify({
+                    type: 'restart'
+                }));
+                screens.show('start', 'screen');
+            }
             var wConnection = connections[data.id];
             screens.show('finish', 'screen');
             $('.js-winner-id').text(wConnection.id);
@@ -171,10 +300,12 @@ var display = function() {
             },
             ready: function() {
                 screens.show('game', 'screen');
-                screens.show('ready', 'step');
+                $('.js-game-step[data-step="ready"]').addClass('active')
+                    .siblings().removeClass('active');
             },
             game: function() {
-                screens.show('game', 'step');
+                $('.js-game-step[data-step="game"]').addClass('active')
+                    .siblings().removeClass('active');
             }
         }
     };
@@ -215,10 +346,15 @@ var controller = function() {
         first: function(data) {
             screens.show('start', 'screen');
         },
+        start: function() {
+            screens.show('start', 'screen');
+        },
         init: function(data) {
             User = data.myConnection;
             $('.js-your-id').text(User.id);
             $('.js-your-image').attr('src', CLOTHES_PATH + userTypes[User.sex][User.sex_id].image);
+            $('.js-game-states [data-state="' + User.readyState + '"]').show()
+                .siblings().hide();
         },
         winner: function(data) {
             screens.show('finish', 'screen');
@@ -314,7 +450,6 @@ var controller = function() {
 
     var sendShake = function(x, y, z) {
         if(motion_allow) {
-            motion_allow = false;
             var shake = 0;
             if(stored.x) {
                 shake = Math.abs((stored.y - y) + (stored.x - x) + (stored.z - z));
@@ -330,23 +465,45 @@ var controller = function() {
             $('#x').text(x);
             $('#y').text(y);
             $('#z').text(z);
+            motion_allow = false;
             setTimeout(function(){
                 socket.send(JSON.stringify(shakeObj));
                 motion_allow = true;
             }, 100);
         }
+    }
+    var sendOneShake = function() {
         socket.send(JSON.stringify({
-            type: 'shakeTest',
-            shake: Math.abs((stored.y - y) + (stored.x - x) + (stored.z - z))
+            type: 'shake',
+            id: User.id,
+            shake: 1
         }));
     }
-
-    var gn = new GyroNorm();
-    gn.init().then(function(){
-        gn.start(function(data){
-            sendShake(data.dm.gx, data.dm.gy, data.dm.gz);
-        });
+    var shakeEvent = new Shake({
+        threshold: 15,
+        timeout: 200
     });
+    shakeEvent.start();
+    window.addEventListener('shake', function(){
+        sendOneShake();
+    }, false);
+
+    /*gyro.frequency = 100;
+    var startTracking = function() {
+        var isGyroNull = false;
+        gyro.startTracking(function(o) {
+            if(!isGyroNull && o.x == null) {
+                alert(o.x);
+                isGyroNull = true;
+                startTracking();
+            } else {
+                sendShake(o.x, o.y, o.z);
+            }
+        });
+    }
+    setTimeout(function(){
+        startTracking();
+    }, 500);*/
 }
 
 var gameInit = function() {
@@ -355,7 +512,7 @@ var gameInit = function() {
 }
 
 var IP;
-$(function(){
+$(window).on('load', function(){
     if((window.location.host).substring(0,9) == 'localhost') {
         $.get('server/ipadress').done(function(data){
             IP = JSON.parse(data).ip;

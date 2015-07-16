@@ -9,12 +9,15 @@ block content
 			.start-animal
 				img(src="images/start-animal.png")
 		.screen(data-screen="game")
-			.game-state.js-game-step(data-step="ready")
-				.state__top Ожидаем участников
-				.state__sub Подключайся к WI-FI сети <b>MODIS GAME</b> и заходи на <b>modis.game</b> или <b><span class="js-ip-string"></span></b>
-			.game-state.js-game-step(data-step="game")
-				.state__top Трясите вашим телефоном сильнее
-			.game-state.game-countdown.js-countdown
+			.game-state-cont
+				.game-state.js-game-step(data-step="ready")
+					.state__top Ожидаем участников
+					.state__sub Подключайся к WI-FI сети <b>MODIS GAME</b> и заходи на <b>modis.game</b> или <b><span class="js-ip-string"></span></b>
+				.game-state.js-game-step(data-step="getReady")
+					.state__top Приготовьтесь
+				.game-state.js-game-step(data-step="game")
+					.state__top Трясите вашим телефоном сильнее
+			//- .game-state.game-countdown.js-countdown
 			ul.users-list#clients
 		.screen(data-screen="finish")
 			.winner-block

@@ -37,7 +37,9 @@ gulp.task('server', function() {
 gulp.task('scripts', function() {
   return gulp.src([
   		'bower_components/jquery/dist/jquery.min.js',
-  		'bower_components/gyronorm/dist/gyronorm.complete.min.js',
+  		//'bower_components/gyronorm/dist/gyronorm.complete.min.js',
+  		//'bower_components/gyro.js/js/gyro.min.js',
+  		//'bower_components/shake.js/shake.js',
   		app_path + '/scripts/main.js'])
     .pipe(concat('main.concat.js'))
     .pipe(gulp.dest(build_path + '/scripts/'))

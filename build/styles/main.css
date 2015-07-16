@@ -399,32 +399,32 @@ html {
     top: 0;
     bottom: 0;
     width: 10vw;
-    background: url(../images/finish.svg) center center/100% auto no-repeat; }
+    background: url(../images/finish.svg) 0 center/151% auto no-repeat; }
   .users-list .list__item {
     position: relative;
     border-top: 2px solid #9ed9e7; }
     .users-list .list__item:last-child {
       border-bottom: 2px solid #9ed9e7; }
     .users-list .list__item:nth-child(1):nth-last-child(1) {
-      height: 18vh; }
+      height: 27vh; }
     .users-list .list__item:nth-child(1):nth-last-child(2),
     .users-list .list__item:nth-child(2):nth-last-child(1) {
-      height: 18vh; }
+      height: 27vh; }
     .users-list .list__item:nth-child(1):nth-last-child(3),
     .users-list .list__item:nth-child(2):nth-last-child(2),
     .users-list .list__item:nth-child(3):nth-last-child(1) {
-      height: 12vh; }
+      height: 18vh; }
     .users-list .list__item:nth-child(1):nth-last-child(4),
     .users-list .list__item:nth-child(2):nth-last-child(3),
     .users-list .list__item:nth-child(3):nth-last-child(2),
     .users-list .list__item:nth-child(4):nth-last-child(1) {
-      height: 9vh; }
+      height: 13.5vh; }
     .users-list .list__item:nth-child(1):nth-last-child(5),
     .users-list .list__item:nth-child(2):nth-last-child(4),
     .users-list .list__item:nth-child(3):nth-last-child(3),
     .users-list .list__item:nth-child(4):nth-last-child(2),
     .users-list .list__item:nth-child(5):nth-last-child(1) {
-      height: 7.2vh; }
+      height: 11vh; }
 
 .user-bar {
   position: relative;
@@ -454,6 +454,12 @@ html {
       font-weight: 700;
       color: #b44e45;
       background: url(../images/cloud.svg) 0 0/100% auto no-repeat; }
+    .user-bar .bar__user.male-5 {
+      background-size: 80%; }
+    .user-bar .bar__user.female-1 {
+      background-size: 70%; }
+    .user-bar .bar__user.female-3 {
+      background-size: 75%; }
 
 .computer-logo {
   position: absolute;
@@ -482,8 +488,6 @@ html {
     right: 0;
     bottom: 0;
     overflow: hidden;
-    display: none; }
-  .wrapper .game-state {
     display: none; }
   .wrapper .game-countdown {
     display: none; }
@@ -530,14 +534,36 @@ html {
     max-height: 50%; }
     .wrapper .start-animal img {
       width: 100%; }
+  .wrapper .game-state-cont {
+    position: relative;
+    height: 10vw;
+    margin: 8% 16% 0; }
   .wrapper .game-state {
+    display: none;
     text-align: center;
     color: #fff;
-    line-height: 1.6;
     padding: 8% 16% 0;
-    height: 10vw; }
+    line-height: 1.6; }
     .wrapper .game-state.game-countdown {
       font-size: 2vw; }
+    .wrapper .game-state.js-game-step {
+      position: absolute;
+      padding: 0;
+      top: 0;
+      left: 0;
+      right: 0;
+      display: block;
+      opacity: 0;
+      -webkit-transform: scale(0.5) translateY(10%);
+          -ms-transform: scale(0.5) translateY(10%);
+              transform: scale(0.5) translateY(10%);
+      -webkit-transition: all 0.2s ease;
+              transition: all 0.2s ease; }
+      .wrapper .game-state.js-game-step.active {
+        opacity: 1;
+        -webkit-transform: scale(1) translateY(0);
+            -ms-transform: scale(1) translateY(0);
+                transform: scale(1) translateY(0); }
     .wrapper .game-state .state__top {
       font-size: 2vw; }
     .wrapper .game-state .state__sub {
@@ -616,6 +642,7 @@ html {
     .wrapper .mobile-info .info__image .image__main {
       width: 100%;
       max-height: 30%;
+      max-height: 200px;
       margin: 60px 0 30px; }
     .wrapper .mobile-info .info__image .image__shadow {
       width: 80%; }

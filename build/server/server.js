@@ -31,17 +31,20 @@ var gameStart = function() {
     connections = {};
     connectionId = 1;
     displayConnect;
-    finish_amount = 10000;
+    finish_amount = 100;
     online = 0;
     online_registered = 0;
     state = 'start';
+    readyState = 'wait';
 }
 gameStart();
 
-var gameSend = function(connection, type, obj) {
+var gameSend = function(connection, type, obj, noState) {
     obj.type = type;
-    obj.state = state;
-    connection.sendUTF(JSON.stringify(obj));
+    if(!noState) obj.state = state;
+    if(connection) 
+        { connection.sendUTF(JSON.stringify(obj)); } else
+        { gameLog('No connection to send information!'); }
 }
 
 var sendAllConnected = function(type, obj) {
@@ -64,17 +67,18 @@ var sendNotInGame = function(type, obj) {
     }
 }
 
+var gameLog = function(str) {
+    console.log(new Date().getHours() + ':' + new Date().getMinutes() + ':' + new Date().getSeconds() + ' ' + str);
+}
+
 var responses = {
     start: function(data, connection) {
-        if(state == 'start' || state == 'ready') {
-            state = 'start';
+        if((state == 'start' || state == 'ready') && online_registered <= 5) {
             connection.id = connectionId++;
             connections[connection.id] = connection;
             online++;
-            console.log('--- --- --- --- ---');
-            console.log('new device connected, id: ' + connection.id);
-            console.log(online + ' devices online');
-            gameSend(connection, 'start', {});
+            gameLog('online: ' + online + ', in game: ' + online_registered + '. new id: ' + connection.id);
+            gameSend(connection, 'start', {}, true);
         } else {
             gameSend(connection, 'gameStarted', {});
         }
@@ -94,34 +98,43 @@ var responses = {
                 id: connection.id,
                 sex: data.sex,
                 sex_id: sex_id,
-                shake: 0
+                shake: 0,
+                conf: 1,
+                readyState: readyState
             };
             gameSend(connection, 'init', {myConnection: scons[connection.id]});
             gameSend(displayConnect, 'init', {
                 connections: scons,
                 online_registered: online_registered
             });
-            console.log('--- --- --- --- ---');
-            console.log('id ' + connection.id + ' in game. User type: ' + data.sex + '|' + sex_id);
-            console.log(online + ' devices online, ' + online_registered + ' devices in game');
+            gameLog('id ' + connection.id + ' in game. User type: ' + data.sex + '|' + sex_id);
+            gameLog('online: ' + online + ', in game: ' + online_registered);
             /*if(online_registered > 1) {
                 gameSend(displayConnect, 'countdown', {});
-                console.log('Countdown started...');
+                gameLog('Countdown started...');
             }*/
         }
     },
     shakeTest: function(data) {
-        //console.log(data.shake);
+        //gameLog(data.shake);
     },
     shake: function(data, connection) {
         if(displayConnect && state == 'game' && typeof(scons[connection.id]) !== 'undefined') {
+            /*var maxLeft = 0;
+            for(var index in scons) { 
+                if (scons.hasOwnProperty(index)) {
+                    if(scons[index].shake > maxLeft) {
+                        maxLeft = scons[index].shake;
+                    }
+                }
+            }*/
             var percents = data.shake/(finish_amount/100);
             if(scons[connection.id].shake < 100) {
                 scons[connection.id].shake = scons[connection.id].shake + percents;
                 gameSend(displayConnect, 'shake', {
                     connection: scons[connection.id]
                 });
-                //console.log(connection.id + ': ' + scons[connection.id].shake);
+                //gameLog(connection.id + ': ' + scons[connection.id].shake);
             } else {
                 state = 'finish';
                 gameSend(displayConnect, 'winner', {
@@ -151,7 +164,7 @@ var displayResponses = {
     },
     startGame: function() {
         state = 'game';
-        sendNotInGame('gameWithOutYou');
+        sendNotInGame('gameWithOutYou',{});
         gameSend(displayConnect, 'game', {});
         return false;
     },
@@ -164,12 +177,15 @@ var displayResponses = {
         gameStart();
     },
     phoneGetReady: function() {
+        readyState = 'ready';
         sendAllConnected('phoneGetReady', {});
     },
     phonePlayGame: function() {
+        readyState = 'game';
         sendAllConnected('phonePlayGame', {});
     },
     phoneWaitPlayers: function() {
+        readyState = 'wait';
         sendAllConnected('phoneWaitPlayers', {});
     },
     onePlayer: function(data) {
@@ -217,10 +233,8 @@ socket.on('request', function(request) {
             if(displayConnect) {
                 displayConnect.sendUTF(json_str);
             }
-            console.log('--- --- --- --- ---');
-            console.log('disconnected device with id ' + connection.id);
-            console.log(online + ' devices online');
-            console.log(online_registered + ' devices in game');
+            gameLog('disconnected id ' + connection.id);
+            gameLog('online: ' + online + ', in game: ' + online_registered);
         }
     });
 });
@@ -241,17 +255,17 @@ Object.keys(ifaces).forEach(function (ifname) {
 
     if (alias >= 1) {
       // this single interface has multiple ipv4 addresses
-      console.log(ifname + ':' + alias, iface.address);
+      gameLog(ifname + ':' + alias, iface.address);
     } else {
       // this interface has only one ipv4 adress
-      console.log(ifname, iface.address);
+      gameLog(ifname, iface.address);
       actual_ip = iface.address;
       var fs = require('fs');
       fs.writeFile("./ipadress", JSON.stringify({ip: actual_ip}), function(err) {
           if(err) {
-              return console.log(err);
+              return gameLog(err);
           }
-          console.log("IP was saved!");
+          gameLog("IP was saved!");
       }); 
     }
   });
